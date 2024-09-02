@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codegen", "Codegen\Codegen.csproj", "{98C426F1-61C2-4CA3-BBC8-8631784BCDFC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codegen.Tests", "Codegen.Tests\Codegen.Tests.csproj", "{CAD1BE19-D697-4732-8ACC-C5273DD0050F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codegen.IntegrationTests", "Codegen.IntegrationTests\Codegen.IntegrationTests.csproj", "{57F5DD4E-F410-417E-B979-8CE99E9DED5C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{98C426F1-61C2-4CA3-BBC8-8631784BCDFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98C426F1-61C2-4CA3-BBC8-8631784BCDFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98C426F1-61C2-4CA3-BBC8-8631784BCDFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98C426F1-61C2-4CA3-BBC8-8631784BCDFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAD1BE19-D697-4732-8ACC-C5273DD0050F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAD1BE19-D697-4732-8ACC-C5273DD0050F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAD1BE19-D697-4732-8ACC-C5273DD0050F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAD1BE19-D697-4732-8ACC-C5273DD0050F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57F5DD4E-F410-417E-B979-8CE99E9DED5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57F5DD4E-F410-417E-B979-8CE99E9DED5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57F5DD4E-F410-417E-B979-8CE99E9DED5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57F5DD4E-F410-417E-B979-8CE99E9DED5C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
