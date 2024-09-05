@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Codegen;
@@ -22,5 +23,25 @@ public class EqualsAndHashCodeAttribute: System.Attribute
         context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
             "EqualsAndHashCodeAttribute",
             SourceText.From(AttributeSourceCode, Encoding.UTF8)));
+
+
+        var classes = context.SyntaxProvider.ForAttributeWithMetadataName(
+                "Codegen.EqualsAndHashCodeAttribute",
+                predicate: (_, _) => true,
+                transform: (context, _) => context.TargetNode as ClassDeclarationSyntax)
+            .Where(static node => node is not null)
+            .Collect()
+            .Combine(context.CompilationProvider);
+        
+        context.RegisterSourceOutput(classes,
+            static (context, pair) =>
+            {
+                var (classes, compilation) = pair;
+                foreach (var cls in classes)
+                {
+                    new ImplementationGenerator(cls!, context, compilation).GenerateSourceCode();
+                }
+            });
     }
+
 }
