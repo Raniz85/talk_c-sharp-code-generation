@@ -20,6 +20,7 @@ public class EqualsAndHashCodeGeneratorTests
         // And a source file that should trigger source generation
         var source = $@"
         using Codegen;
+        using Aliased = Codegen.EqualsAndHashCode;
 
         namespace Test;
 
@@ -49,9 +50,9 @@ namespace Test;
 
 public partial class Person
 {{
-    public bool Equals(Person other)
+    public bool Equals(Person? other)
     {{
-        return Object.Equals(this.FirstName, other.FirstName) && Object.Equals(this.LastName, other.LastName) && Object.Equals(this.age, other.age);
+        return other != null && Object.Equals(this.FirstName, other.FirstName) && Object.Equals(this.LastName, other.LastName) && Object.Equals(this.age, other.age);
     }}
 
     public override bool Equals(object other)

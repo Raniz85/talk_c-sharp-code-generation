@@ -15,12 +15,6 @@ public class EqualsAndHashCodeImplementation(ClassDeclarationSyntax cls, SourceP
         ? classSymbol.ContainingNamespace.ToDisplayString()
         : null;
 
-    private bool HasMarkerAttribute => cls.AttributeLists
-        .SelectMany(list => list.Attributes)
-        .Any(attribute => SemanticModel.GetSymbolInfo(attribute).Symbol is IMethodSymbol attributeSymbol &&
-                          attributeSymbol.ContainingType.ToDisplayString().Equals($"{EqualsAndHashCodeGenerator.Namespace}.{EqualsAndHashCodeGenerator.AttributeName}")
-        );
-
     private IEnumerable<MemberDeclarationSyntax> Members => cls.Members
         .Where(IsMemberToInclude);
 
@@ -54,7 +48,7 @@ public class EqualsAndHashCodeImplementation(ClassDeclarationSyntax cls, SourceP
 
     public void GenerateSourceCode()
     {
-        if (Namespace == null || !HasMarkerAttribute)
+        if (Namespace == null)
         {
             return;
         }

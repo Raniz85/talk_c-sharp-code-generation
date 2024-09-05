@@ -29,17 +29,18 @@ namespace {Namespace}
             $"{AttributeName}",
             SourceText.From(AttributeSourceCode, Encoding.UTF8)));
 
-        // Locate and register generators for all classes marked with the marker attribute
+        // Locate all classes marked with the marker attribute
         var classes = context.SyntaxProvider
-            .CreateSyntaxProvider(
-                predicate: static (s, _) => IsClassWithAttributes(s),
-                transform: static (context, _) => context.Node as ClassDeclarationSyntax
+            .ForAttributeWithMetadataName(
+                $"{Namespace}.{AttributeName}",
+                predicate: static (_, _) => true,
+                transform: static (context, _) => context.TargetNode as ClassDeclarationSyntax
             )
             .Where(static node => node is not null)
             .Collect()
             .Combine(context.CompilationProvider);
 
-        // Execute all the generators to generate source code
+        // Generate source code
         context.RegisterSourceOutput(classes,
             static (context, pair) =>
             {
@@ -49,18 +50,5 @@ namespace {Namespace}
                     new EqualsAndHashCodeImplementation(cls!, context, compilation).GenerateSourceCode();
                 }
             });
-    }
-
-    /// <summary>
-    /// Check if a node is a class declaration syntax with at least one attribute
-    /// </summary>
-    /// <param name="syntaxNode"></param>
-    /// <returns></returns>
-    private static bool IsClassWithAttributes(SyntaxNode syntaxNode)
-    {
-        return syntaxNode is ClassDeclarationSyntax classNode
-               && classNode.AttributeLists
-                   .SelectMany(list => list.Attributes)
-                   .Any();
     }
 }
