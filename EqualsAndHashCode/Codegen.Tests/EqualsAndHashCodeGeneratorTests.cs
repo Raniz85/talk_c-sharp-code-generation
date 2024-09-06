@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.CodeAnalysis.Text;
 using Xunit;
 
 namespace Codegen.Tests;

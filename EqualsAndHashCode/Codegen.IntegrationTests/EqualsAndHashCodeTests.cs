@@ -19,14 +19,36 @@ public partial class TestSubject
 
 public class EqualsAndHashCodeTests
 {
-    [Fact]
-    public void ThatEqualInstancesAreConsideredEqual()
+
+    public static IEnumerable<object[]> EqualityTestData()
     {
-        // Given two equal instances of the same class
-        var a = new TestSubject("foo", 7);
-        var b = new TestSubject("foo", 7);
+        return
+        [
+            [new TestSubject("foo", 7), new TestSubject("foo", 7), true],
+            [new TestSubject("bar", 7), new TestSubject("foo", 7), false],
+            [new TestSubject("bar", 8), new TestSubject("foo", 7), false],
+            [new TestSubject("foo", 8), new TestSubject("foo", 7), false],
+            [new TestSubject("foo", 8), null, false],
+        ];
+    }
+    
+    [Theory]
+    [MemberData(nameof(EqualityTestData))]
+    public void ThatEqualityCheckWorksAsExpected(TestSubject a, TestSubject? b, bool expectedEqual)
+    {
+        // Expect their equality to be correct
+        a.Equals(b).Should().Be(expectedEqual);
+    }
+
+
+    [Fact]
+    public void ThatGetHashCodeReturnsSameHashForEqualObjects()
+    {
+        // Given two equal test subjects
+        var a = new TestSubject("bar", 8);
+        var b = new TestSubject("bar", 8);
         
-        // Expect them to be considered equal
-        a.Equals(b).Should().BeTrue();
+        // Expect their hash codes to be equal
+        a.GetHashCode().Should().Be(b.GetHashCode());
     }
 }
