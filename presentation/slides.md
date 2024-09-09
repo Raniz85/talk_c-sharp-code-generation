@@ -281,23 +281,63 @@ video: /videos/05-class-generation.mp4
 # Providing source code
 ## SyntaxFactory
 
-``` 
+```csharp
 SyntaxFactory.MethodDeclaration(SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword)), "Equals")
     .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
     .AddParameterListParameters(
         SyntaxFactory.Parameter(SyntaxFactory.Identifier("other"))
-            .WithType(SyntaxFactory.NullableType(SyntaxFactory.IdentifierName(className))))
+            .WithType(SyntaxFactory.NullableType(SyntaxFactory.IdentifierName(ClassName))))
     .WithBody(SyntaxFactory.Block(
         SyntaxFactory.ReturnStatement(
             MemberNames
-                .Select(name => (ExpressionSyntax) SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName("Object.Equals"))
+                .Select(member => (ExpressionSyntax) SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName("Object.Equals"))
                     .AddArgumentListArguments(
-                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(name)),
+                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(member)),
                         SyntaxFactory.Argument(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
                             SyntaxFactory.IdentifierName("other"),
-                            SyntaxFactory.IdentifierName(name)))))
+                            SyntaxFactory.IdentifierName(member)))))
                 .Aggregate((current, next) => SyntaxFactory.BinaryExpression(SyntaxKind.LogicalAndExpression, current, next))
     )));
+```
+
+---
+
+# Providing source code
+## String interpolation
+
+````md magic-move
+```csharp
+$@"
+public bool Equals({ClassName}? other)
+{
+    return {" && ".join(MemberNames.Select(member => $"Object.Equals({member}, other.{member})"))};
+}
+";
+```
+```csharp
+$@"
+public bool Equals({ClassName}? other)
+{
+    return other is not null && {" && ".join(MemberNames.Select(member => $"Object.Equals({member}, other.{member})"))};
+}
+";
+```
+````
+
+---
+
+# Providing source code
+## Templating
+
+```liquid
+public bool Equals({{ ClassName }}? other)
+{
+    return other is not null
+    {% for member in MemberNames %}
+        && Object.Equals({{ member }}, other.{{ member }}
+    {% endfor %}
+    ; 
+}
 ```
 
 ---
@@ -314,6 +354,115 @@ video: /videos/07-classname-namespace.mp4
 layout: video
 video: /videos/08-member-names.mp4
 ---
+
+---
+layout: two-columns
+---
+
+# About property inclusion
+
+::left::
+
+````md magic-move
+
+```csharp {*|*|3|5-17|5|6-17|19|*}
+public class Person
+{
+    public String Name { get; init; }
+    
+    private int _age;
+    public int Age { 
+        init {
+            if (value < 0 || value > 130)
+            {
+                throw new ArgumentException();
+            }
+            _age = value;
+        }
+        get {
+            return _age;
+        }
+    }
+    
+    public bool IsAdult => Age >= 18;
+}
+```
+
+```csharp
+public class Person
+{
+    public String Name { get; init; }
+    
+    private int _age;
+    [EqualsAndHashCodeIgnore]
+    public int Age { 
+        init {
+            if (value < 0 || value > 130)
+            {
+                throw new ArgumentException();
+            }
+            _age = value;
+        }
+        get {
+            return _age;
+        }
+    }
+    
+    [EqualsAndHashCodeIgnore]
+    public bool IsAdult => Age >= 18;
+}
+```
+
+````
+
+::right::
+
+<div v-click.hide="8" class="ml-5">
+
+````md magic-move {at: 1}
+
+```csharp
+return member is FieldDeclarationSyntax
+    or PropertyDeclarationSyntax;
+```
+
+```csharp
+return member switch {
+    FieldDeclarationSyntax => true,
+    PropertyDeclarationSyntax => true,
+};
+```
+
+```csharp {3-5|*|2|3-5}
+return member switch {
+    FieldDeclarationSyntax => true,
+    PropertyDeclarationSyntax prop => prop.AccessorList
+              .Accessors
+              .All(accessor => accessor.Body is null),
+};
+```
+
+```csharp
+return member switch {
+    FieldDeclarationSyntax => true,
+    PropertyDeclarationSyntax prop =>
+            prop.AccessorList != null,
+};
+```
+
+```csharp
+return member switch {
+    FieldDeclarationSyntax => true,
+    PropertyDeclarationSyntax prop => prop.AccessorList?
+              .Accessors
+              .All(accessor => accessor.Body is null)
+          ?? false,
+};
+```
+
+````
+
+</div>
 
 ---
 layout: video
