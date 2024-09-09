@@ -48,15 +48,16 @@ background: /images/code-in-code-meme.jpg
 
 ---
 
-# Generating code in C#
+# Generating code in .NET Core
+## Some history
 
-- < .NET 5: Custom tooling
+-  Before .NET 5: custom tooling
 - .NET 5: Roslyn source generators
-- .NET 6: Incremental source generators
+- .NET 6 and beyond: incremental source generators
 
 ---
 
-# < .NET 5: Custom tooling
+# Before .NET 5: Custom tooling
 
 - T4 text templates
 - Standalone tools invoked via MSBuild
@@ -78,7 +79,7 @@ Can't see code from other source generators
 
 ---
 
-# .NET 6: Incremental source generation
+# .NET 6 and beyond: incremental source generation
 
 - Executed by the C# compiler
 - Only analyses _changed_ source code
@@ -268,8 +269,24 @@ video: /videos/04-unit-test.mp4
 ---
 
 ---
+layout: two-columns
+---
 
-# Brittle vs rebuilding all the time
+# Integration vs unit tests
+
+::left::
+
+## Integration tests
+
+- Need to rebuild project on change
+- Tests functionality, no matter what the implementation looks like
+ 
+::right::
+
+## Unit tests
+
+- Develop normally
+- Asserts exact output, can't test functionality
 
 ---
 layout: video
@@ -279,6 +296,9 @@ video: /videos/05-class-generation.mp4
 ---
 
 # Providing source code
+
+<div v-click>
+
 ## SyntaxFactory
 
 ```csharp
@@ -300,6 +320,8 @@ SyntaxFactory.MethodDeclaration(SyntaxFactory.PredefinedType(SyntaxFactory.Token
     )));
 ```
 
+</div>
+
 ---
 
 # Providing source code
@@ -309,17 +331,17 @@ SyntaxFactory.MethodDeclaration(SyntaxFactory.PredefinedType(SyntaxFactory.Token
 ```csharp
 $@"
 public bool Equals({ClassName}? other)
-{
-    return {" && ".join(MemberNames.Select(member => $"Object.Equals({member}, other.{member})"))};
-}
+{{
+    return {" && ".join(MemberNames.Select(name => $"Object.Equals({name}, other.{name})"))};
+}}
 ";
 ```
 ```csharp
 $@"
 public bool Equals({ClassName}? other)
-{
-    return other is not null && {" && ".join(MemberNames.Select(member => $"Object.Equals({member}, other.{member})"))};
-}
+{{
+    return other is not null && {" && ".join(MemberNames.Select(name => $"Object.Equals({name}, other.{name})"))};
+}}
 ";
 ```
 ````
@@ -333,8 +355,8 @@ public bool Equals({ClassName}? other)
 public bool Equals({{ ClassName }}? other)
 {
     return other is not null
-    {% for member in MemberNames %}
-        && Object.Equals({{ member }}, other.{{ member }}
+    {% for name in MemberNames %}
+        && Object.Equals({{ name }}, other.{{ name }})
     {% endfor %}
     ; 
 }
@@ -365,7 +387,7 @@ layout: two-columns
 
 ````md magic-move
 
-```csharp {*|*|3|5-17|5|6-17|19|*}
+```csharp {*|*|19|3|5-17|5|6-17|6-17|*}{lines: true}
 public class Person
 {
     public String Name { get; init; }
@@ -417,7 +439,7 @@ public class Person
 
 ::right::
 
-<div v-click.hide="8" class="ml-5">
+<div class="ml-5">
 
 ````md magic-move {at: 1}
 
@@ -433,7 +455,24 @@ return member switch {
 };
 ```
 
+```csharp
+return member switch {
+    FieldDeclarationSyntax => true,
+    PropertyDeclarationSyntax prop =>
+            prop.AccessorList != null,
+};
+```
+
 ```csharp {3-5|*|2|3-5}
+return member switch {
+    FieldDeclarationSyntax => true,
+    PropertyDeclarationSyntax prop => prop.AccessorList
+              .Accessors
+              .Any(),
+};
+```
+
+```csharp {3-5}
 return member switch {
     FieldDeclarationSyntax => true,
     PropertyDeclarationSyntax prop => prop.AccessorList
@@ -445,18 +484,17 @@ return member switch {
 ```csharp
 return member switch {
     FieldDeclarationSyntax => true,
-    PropertyDeclarationSyntax prop =>
-            prop.AccessorList != null,
-};
-```
-
-```csharp
-return member switch {
-    FieldDeclarationSyntax => true,
     PropertyDeclarationSyntax prop => prop.AccessorList?
               .Accessors
               .All(accessor => accessor.Body is null)
           ?? false,
+};
+```
+
+```csharp
+return member is FieldDeclarationSyntax
+    or PropertyDeclarationSyntax
+    && !HasIgnoreAttribute(member);
 };
 ```
 
@@ -478,3 +516,127 @@ video: /videos/10-more-tests.mp4
 layout: video
 video: /videos/11-hashcode-test.mp4
 ---
+
+---
+
+# Generating hash codes
+
+
+```csharp
+public override int GetHashCode()
+{
+    int hash = 17;
+    hash = hash * 31 + FirstName.GetHashCode();
+    hash = hash * 31 + LastName.GetHashCode();
+    hash = hash * 31 + Age.GetHashCode();
+    return hash;
+}
+```
+
+<div v-click class="mt-2">
+
+```csharp
+public override int GetHashCode()
+{
+    var hash = new HashCode();
+    hash.Add(FirstName);
+    hash.Add(LastName);
+    hash.Add(Age);
+    return hash.ToHashCode();
+}
+```
+
+</div>
+
+<div v-click class="mt-2">
+
+```csharp
+public override int GetHashCode()
+{
+    return HashCode.Combine(FirstName, LastName, Age);
+}
+```
+
+</div>
+
+---
+layout: video
+video: /videos/12-hashcode-implementation.mp4
+---
+
+---
+
+# Summary
+
+- Roslyn incremental source generator
+- Marker attribute inclusion
+- Integration test vs unit test
+- SyntaxFactory vs string interpolation vs templating
+- Techniques for property selection
+
+---
+
+# Bonus stuff
+
+- _ForAttributeWithMetadataName_ does not support aliases
+
+<div class="absolute bottom-30px">
+
+```csharp
+
+using Eq = Codegen.EqualsAndHashCodeAttribute;
+
+[Eq]
+public partial class Person {
+
+    ...
+}
+```
+
+</div>
+
+---
+
+# Bonus stuff
+
+- _ForAttributeWithMetadataName_ does not support aliases
+- Running unit tests with reflection
+
+<div class="absolute bottom-30px">
+
+```csharp
+var assembly = generator.CompileToAssembly(sourceCode);
+
+var testSubjectType = assembly.GetType("Test.TestSubject");
+dynamic a = Activator.CreateInstance(testSubjectType, ["foo", 7]);
+dynamic b = Activator.CreateInstance(testSubjectType, ["foo", 7]);
+bool result = a.Equals(b);
+result.Should().BeTrue();
+```
+
+</div>
+
+---
+layout: intro
+---
+<div class="max-w-80%">
+
+# The art of automation
+## An introduction to compile-time C# code generation
+</div>
+
+<div class="text-black">
+Daniel Raniz Raneland<br />
+Coding Architect @ factor10
+
+<div class="grid grid-cols-2 w-80% mt-10">
+    <div class="col-span-2"><mdi-firefox />factor10.com</div>
+    <div class="col-span-2"><mdi-firefox />raniz.blog</div>
+    <div class="col-span-2"><mdi-email />raniz@factor10.com</div>
+</div>
+</div>
+
+<div class="absolute right-20px bottom-20px text-center">
+    <img width="300" src="/images/linkedin-qr.png" />
+    <div class="col-span-2"><mdi-linkedin />/in/raneland</div>
+</div>

@@ -21,7 +21,7 @@
   }
 
   h2 {
-    @apply text-3xl;
+    @apply text-3xl mb-4;
   }
 
   h3 {
