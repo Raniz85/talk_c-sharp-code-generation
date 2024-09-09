@@ -103,28 +103,4 @@ public partial class {ClassName}
 ";
         context.AddSource($"{ClassName}.EqualsAndHashCode", sourceCode);
     }
-    
-    
-    private MethodDeclarationSyntax GenerateEqualsClassMethod(string className, string[] memberNames)
-    {
-        return SyntaxFactory.MethodDeclaration(
-                SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword)), "Equals")
-            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
-            .AddParameterListParameters(
-                SyntaxFactory.Parameter(SyntaxFactory.Identifier("other"))
-                    .WithType(SyntaxFactory.NullableType(SyntaxFactory.IdentifierName(className))))
-            .WithBody(SyntaxFactory.Block(
-                SyntaxFactory.ReturnStatement(
-                    SyntaxFactory.BinaryExpression(SyntaxKind.LogicalAndExpression,
-                        SyntaxFactory.IdentifierName("other"),
-                        MemberNames
-                            .Select(name => (ExpressionSyntax) SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName("Object.Equals"))
-                                .AddArgumentListArguments(
-                                    SyntaxFactory.Argument(SyntaxFactory.IdentifierName(name)),
-                                    SyntaxFactory.Argument(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                                        SyntaxFactory.IdentifierName("other"),
-                                        SyntaxFactory.IdentifierName(name)))))
-                            .Aggregate((current, next) => SyntaxFactory.BinaryExpression(SyntaxKind.LogicalAndExpression, current, next))
-            ))));
-    }
 }
