@@ -23,12 +23,13 @@ Coding Architect @ factor10
     <div class="col-span-2"><mdi-firefox />factor10.com</div>
     <div class="col-span-2"><mdi-firefox />raniz.blog</div>
     <div class="col-span-2"><mdi-email />raniz@factor10.com</div>
+    <div class="col-span-2"><mdi-linkedin />/in/raneland</div>
 </div>
 </div>
 
 <div class="absolute right-20px bottom-20px text-center">
-    <img width="300" src="/images/linkedin-qr.png" />
-    <div class="col-span-2"><mdi-linkedin />/in/raneland</div>
+    <img width="300" src="/images/about-me-qr.svg" />
+    <div class="col-span-2">about.me/raniz</div>
 </div>
 
 ---
@@ -98,6 +99,8 @@ Can see generated code both from itself and other generators
 
 -->
 
+---
+layout: statement
 ---
 
 # Generating Equals and HashCode
@@ -192,6 +195,13 @@ NuGet:
 ---
 layout: video
 video: /videos/01-integration-test.mp4
+
+
+<!--
+
+Create integration test that fails because it can't find the marker attribute
+
+-->
 ---
 
 ---
@@ -252,6 +262,14 @@ layout: video
 video: /videos/02-attribute-generation.mp4
 ---
 
+<!--
+
+1. Create generator that generates the attribute
+2. Reload Roslyn in Rider to make it get, still doesn't build
+3. Rebuild the project
+
+-->
+
 ---
 
 # Iterative development without full rebuilds
@@ -269,10 +287,22 @@ layout: video
 video: /videos/03-test-helper-extension.mp4
 ---
 
+<!--
+
+Test helper for running the generator on source code from string
+
+-->
+
 ---
 layout: video
 video: /videos/04-unit-test.mp4
 ---
+
+<!--
+
+Write a unit test using the helper. Show that it's brittle and can fail with error messages that are hard to decipher.
+
+-->
 
 ---
 layout: two-columns
@@ -294,10 +324,20 @@ layout: two-columns
 - Develop normally
 - Asserts exact output, can't test functionality
 
+<!--
+Brittle unit tests that are fast to execute or rebuilding the project to reload source generators so the integration tests can run?
+
+Stable > fast right here, for me
+-->
+
 ---
 layout: video
 video: /videos/05-class-generation.mp4
 ---
+
+<!--
+Implement the source generator to trigger on annotated classes, stop at the actual source generation
+-->
 
 ---
 
@@ -374,20 +414,46 @@ public bool Equals({{ ClassName }}? other)
 }
 ```
 
+<!--
+
+Example is a Liquid template
+
+-->
+
 ---
 layout: video
 video: /videos/06-implementation-source-code.mp4
 ---
+
+<!--
+
+Implement method for generating source code, using properties that are still not defined
+
+-->
 
 ---
 layout: video
 video: /videos/07-classname-namespace.mp4
 ---
 
+<!--
+
+Define the Classname and Namespace properties
+
+For the namespace we need the _semantic model_, which has resolved the full class hierarchy and is not just working with syntax.
+
+-->
+
 ---
 layout: video
 video: /videos/08-member-names.mp4
 ---
+
+<!--
+
+Define the member names property
+
+-->
 
 ---
 layout: two-columns
@@ -525,58 +591,6 @@ video: /videos/10-more-tests.mp4
 ---
 
 ---
-layout: video
-video: /videos/11-hashcode-test.mp4
----
-
----
-
-# Generating hash codes
-
-
-```csharp
-public override int GetHashCode()
-{
-    int hash = 17;
-    hash = hash * 31 + FirstName.GetHashCode();
-    hash = hash * 31 + LastName.GetHashCode();
-    hash = hash * 31 + Age.GetHashCode();
-    return hash;
-}
-```
-
-<div v-click class="mt-2">
-
-```csharp
-public override int GetHashCode()
-{
-    var hash = new HashCode();
-    hash.Add(FirstName);
-    hash.Add(LastName);
-    hash.Add(Age);
-    return hash.ToHashCode();
-}
-```
-
-</div>
-
-<div v-click class="mt-2">
-
-```csharp
-public override int GetHashCode()
-{
-    return HashCode.Combine(FirstName, LastName, Age);
-}
-```
-
-</div>
-
----
-layout: video
-video: /videos/12-hashcode-implementation.mp4
----
-
----
 
 # Summary
 
@@ -653,10 +667,11 @@ Coding Architect @ factor10
     <div class="col-span-2"><mdi-firefox />factor10.com</div>
     <div class="col-span-2"><mdi-firefox />raniz.blog</div>
     <div class="col-span-2"><mdi-email />raniz@factor10.com</div>
+    <div class="col-span-2"><mdi-linkedin />/in/raneland</div>
 </div>
 </div>
 
 <div class="absolute right-20px bottom-20px text-center">
-    <img width="300" src="/images/linkedin-qr.png" />
-    <div class="col-span-2"><mdi-linkedin />/in/raneland</div>
+    <img width="300" src="/images/about-me-qr.svg" />
+    <div class="col-span-2">about.me/raniz</div>
 </div>
