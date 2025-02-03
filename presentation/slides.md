@@ -47,6 +47,12 @@ background: /images/code-in-code-meme.jpg
 - Wrap up
 
 ---
+layout: fact
+---
+
+# Demo
+
+---
 
 # Generating code in .NET Core
 ## Some history
@@ -171,7 +177,7 @@ NuGet:
 
 ---
 
-# Depending on an analyzer
+# Depending on an analyzer project
 
 ```xml {all|3|4|5}
 <ItemGroup>
@@ -248,13 +254,13 @@ video: /videos/02-attribute-generation.mp4
 
 ---
 
-# Iterative development without rebuilding
+# Iterative development without full rebuilds
 
 <img v-click class="mx-auto h-400px" src="/images/flight-simulator.jpg" />
 
 ---
 
-# Iterative development without rebuilding
+# Iterative development without full rebuilds
 
 <img class="mx-auto h-400px" src="/images/compiler-simulator.jpg" />
 
@@ -321,6 +327,12 @@ SyntaxFactory.MethodDeclaration(SyntaxFactory.PredefinedType(SyntaxFactory.Token
 ```
 
 </div>
+
+<!--
+
+There's a bug in here, can you spot it?
+
+-->
 
 ---
 
@@ -570,17 +582,30 @@ video: /videos/12-hashcode-implementation.mp4
 
 - Roslyn incremental source generator
 - Marker attribute inclusion
-- Integration test vs unit test
+- Integration testing vs unit testing
 - SyntaxFactory vs string interpolation vs templating
 - Techniques for property selection
+
+---
+
+# Applications
+
+<v-clicks>
+
+- Automatic DI modules
+- Flavour generation
+- Performant serialization
+- Aspect-oriented programming
+- Generating companion code
+- Transforming DSL into code
+
+</v-clicks>
 
 ---
 
 # Bonus stuff
 
 - _ForAttributeWithMetadataName_ does not support aliases
-
-<div class="absolute bottom-30px">
 
 ```csharp
 
@@ -593,7 +618,6 @@ public partial class Person {
 }
 ```
 
-</div>
 
 ---
 
@@ -601,8 +625,6 @@ public partial class Person {
 
 - _ForAttributeWithMetadataName_ does not support aliases
 - Running unit tests with reflection
-
-<div class="absolute bottom-30px">
 
 ```csharp
 var assembly = generator.CompileToAssembly(sourceCode);
@@ -613,8 +635,6 @@ dynamic b = Activator.CreateInstance(testSubjectType, ["foo", 7]);
 bool result = a.Equals(b);
 result.Should().BeTrue();
 ```
-
-</div>
 
 ---
 layout: intro
